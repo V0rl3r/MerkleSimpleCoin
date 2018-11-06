@@ -12,6 +12,7 @@ class Transaction:
         self.destID = destID
         self.amtToAdd = amt
         self.origID = origID
+        self.hash = None
         if not origID is None:
             signed = True
             self.genHash(self)

@@ -1,8 +1,22 @@
 import hashlib
 import time
 import base64
+import queue
 
 class Block:
+
+    class MerkleNode:
+
+        def __init__(self):
+            self.left = None
+            self.right = None
+            self.hash = None
+
+        def genHash(self):
+            sha = hashlib.sha256():
+            sha.update(str(self.left.hash).encode())
+            sha.update(str(self.right.hash).encode())
+            self.hash = base64.b16encode(sha.digest()).decode()
 
     def __init__(self, idx=None, data=None, prevHash=None, hash=None):
         self.idx = idx
@@ -48,5 +62,22 @@ class Block:
             return True
         else:
             return False
+
+    def createMerkleTree(self, transactions):
+        q = queue.Queue()
+        for t in transactions:
+            mNode = self.MerkleNode()
+            mNode.hash = t.hash
+            q.put(mNode)
+        while q.qsize() > 1:
+            mn1 = q.get()
+            mn2 = q.get()
+            mNode = self.MerkleNode()
+            mNode.left = mn1
+            mNode.right = mn2
+            mNode.genHash()
+            q.put(mNode)
+        self.mRoot = q.get()
+
 
 #MUST VERIFY
